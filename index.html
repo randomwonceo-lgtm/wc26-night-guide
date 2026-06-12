@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WC26 Night Guide — every match, your timezone</title>
+<title>Match Night — every World Cup match, your timezone</title>
 <style>
   :root{
     --bg:#0b1120; --bg2:#0f172a; --card:#141e33; --card2:#1a2742;
@@ -148,7 +148,7 @@
 <body>
 <header class="wrap">
   <div class="badge">⚽ World Cup 2026 · USA · Mexico · Canada</div>
-  <h1>WC26 <span class="glow">Night Guide</span></h1>
+  <h1>Match <span class="glow">Night</span></h1>
   <p class="sub">All <b>104 matches</b> · kickoff times shown in <b>your</b> timezone · standings update as results come in</p>
   <div class="tz-pill"><span class="dot"></span><span id="tzlabel"></span></div>
 </header>
@@ -193,9 +193,17 @@
     <div class="bracket" id="bracketWrap"></div>
   </section>
 
+  <div id="emailCard" style="display:none;margin-top:40px;background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--gold);border-radius:var(--radius);padding:22px 24px;position:relative">
+    <button id="emailDismiss" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer">×</button>
+    <div style="font-weight:800;font-size:17px;margin-bottom:6px">⚡ Want the next tool before everyone else?</div>
+    <div style="color:var(--dim);font-size:13.5px;margin-bottom:14px">Match Night is the first of many. Drop your email and you'll get the next one (plus the exact prompts) first.</div>
+    <a id="emailLink" href="#" target="_blank" rel="noopener" style="display:inline-block;background:var(--gold);color:#3a2c00;font-weight:800;font-size:14px;padding:10px 22px;border-radius:10px;text-decoration:none">Get future tools first →</a>
+  </div>
+
   <footer>
     <div>Times auto-converted from ET to your device timezone · data through June 12, 2026</div>
-    <div>built in one evening with Claude · remix it yourself 🍳 <span class="by">— Dylon</span></div>
+    <div>Match Night · built in one evening with Claude · remix it yourself 🍳 <span class="by">— Dylon</span></div>
+    <div style="margin-top:6px"><a href="https://instagram.com/dylonhernandez" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;font-weight:700">📸 @dylonhernandez</a> — follow for the next build</div>
   </footer>
 </div>
 
@@ -391,6 +399,21 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   t.classList.add("on");
   document.getElementById(t.dataset.sec).classList.add("on");
 });
+
+// email capture card (activates when TALLY_URL is set)
+const TALLY_URL = "";
+if (TALLY_URL) {
+  let dismissed = false;
+  try { dismissed = localStorage.getItem("mn-email-dismissed") === "1"; } catch(e){}
+  if (!dismissed) {
+    document.getElementById("emailCard").style.display = "block";
+    document.getElementById("emailLink").href = TALLY_URL;
+    document.getElementById("emailDismiss").onclick = () => {
+      document.getElementById("emailCard").style.display = "none";
+      try { localStorage.setItem("mn-email-dismissed","1"); } catch(e){}
+    };
+  }
+}
 
 // init
 renderChips(); renderTonight(); renderDayStrip(); renderDayCards(); renderGroups(); renderBracket();
