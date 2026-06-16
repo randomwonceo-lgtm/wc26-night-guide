@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Match Night — every World Cup match, your timezone</title>
+<meta name="description" content="Every 2026 FIFA World Cup match in your timezone — live scores, group standings, the knockout bracket, and watch parties near you.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<meta name="theme-color" content="#0b1120">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://match-night.vercel.app/">
+<meta property="og:title" content="Match Night — World Cup 2026, your timezone">
+<meta property="og:description" content="Every match in your timezone · live scores · watch parties near you.">
+<meta property="og:site_name" content="Match Night">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Match Night — World Cup 2026">
+<meta name="twitter:description" content="Every match in your timezone · live scores · watch parties near you.">
+<meta property="og:image" content="https://match-night.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://match-night.vercel.app/og.png">
 <style>
   :root{
     --bg:#0b1120; --bg2:#0f172a; --card:#141e33; --card2:#1a2742;
@@ -133,6 +148,52 @@
   .block-title{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--neon);margin:22px 0 12px}
   .block-title.dim{color:var(--dim)}
 
+  /* watch parties */
+  .wp-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 18px}
+  .wp-toggle{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .wp-toggle button{font:inherit;font-size:13px;font-weight:700;padding:7px 15px;background:transparent;color:var(--dim);border:none;cursor:pointer}
+  .wp-toggle button.on{background:var(--neon);color:#06210f}
+  .wp-fchip{font:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--dim);border-radius:999px;padding:6px 13px;cursor:pointer;transition:.12s}
+  .wp-fchip.on{background:var(--neon);border-color:var(--neon);color:#06210f}
+  .wp-fchip.geo.on{background:var(--blue);border-color:var(--blue);color:#04132b}
+  .party{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .party.followed{border-color:var(--gold)}
+  .pphoto{height:92px;display:flex;align-items:flex-end;padding:10px 14px;position:relative}
+  .pphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.45))}
+  .pphoto .pcity{position:relative;z-index:1;font-size:11px;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.6)}
+  .pdist{position:absolute;top:10px;right:12px;z-index:1;font-size:11px;font-weight:700;color:#fff;
+    background:rgba(0,0,0,.45);border-radius:999px;padding:3px 9px}
+  .pbody{padding:13px 16px 16px;display:flex;flex-direction:column;gap:9px}
+  .pname{font-size:17px;font-weight:800;line-height:1.2}
+  .pmatch{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700}
+  .pmatch .flag{font-size:18px}
+  .pwhen{font-size:12.5px;color:var(--dim)}
+  .pwhen b{color:var(--neon)}
+  .ptags{display:flex;flex-wrap:wrap;gap:6px}
+  .ptag{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;border:1px solid var(--line);color:var(--dim);background:var(--bg2)}
+  .ptag.indoor{color:var(--blue);border-color:var(--blue)}
+  .ptag.outdoor{color:var(--neon);border-color:var(--neon)}
+  .ptag.fan{color:var(--gold);border-color:var(--gold)}
+  .pspecial{font-size:12.5px;color:var(--gold);line-height:1.5}
+  .pactions{display:flex;gap:8px;margin-top:3px}
+  .pbtn{flex:1;text-align:center;font:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);
+    background:var(--bg2);color:var(--txt);border-radius:10px;padding:8px 6px;cursor:pointer;text-decoration:none;transition:.12s}
+  .pbtn:hover{border-color:var(--neon);color:var(--neon)}
+  .wp-feed{display:grid;grid-template-columns:1fr;gap:16px;max-width:520px;margin:0 auto}
+  .wp-feed .pphoto{height:170px}
+  .wp-feed .pname{font-size:22px}
+  .wp-feed .pmatch{font-size:17px}
+  .wp-submit{margin-top:26px;background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--gold);
+    border-radius:var(--radius);padding:20px 22px;text-align:center}
+  .wp-submit-title{font-size:17px;font-weight:800;margin-bottom:4px}
+  .wp-submit-sub{color:var(--dim);font-size:13.5px;margin-bottom:14px}
+  .wp-submit a{display:inline-block;background:var(--gold);color:#3a2c00;font-weight:800;font-size:14px;
+    padding:10px 22px;border-radius:10px;text-decoration:none}
+  .prating{font-size:12px;font-weight:700;color:var(--gold);margin-left:auto;white-space:nowrap}
+  .popen{color:var(--neon)} .pclosed{color:var(--hot)}
+
   /* groups */
   .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
   .gcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
@@ -175,6 +236,7 @@
   <button class="tab" data-sec="schedule">📅 Schedule</button>
   <button class="tab" data-sec="groups">🏆 Groups</button>
   <button class="tab" data-sec="bracket">🛣️ Bracket</button>
+  <button class="tab" data-sec="parties">📍 Watch Parties</button>
 </div></nav>
 
 <div class="wrap">
@@ -215,6 +277,27 @@
     <div class="sec-title">Road to the final</div>
     <div class="sec-sub">Knockout bracket fills in as groups finish. Final: July 19 · MetLife Stadium, New York/New Jersey.</div>
     <div class="bracket" id="bracketWrap"></div>
+  </section>
+
+  <section id="parties">
+    <div class="sec-title">Watch parties near you</div>
+    <div class="sec-sub">Verified spots showing the matches. Tap a team above to see only your parties.</div>
+    <div class="wp-controls">
+      <div class="wp-toggle">
+        <button id="wpGrid" class="on">▦ Grid</button>
+        <button id="wpFeed">▤ Feed</button>
+      </div>
+      <button class="wp-fchip on" data-indoor="all">All</button>
+      <button class="wp-fchip" data-indoor="indoor">🏠 Indoor</button>
+      <button class="wp-fchip" data-indoor="outdoor">🌤 Outdoor</button>
+      <button class="wp-fchip geo" id="wpGeo">📍 Sort by distance</button>
+    </div>
+    <div id="partiesWrap"></div>
+    <div class="wp-submit">
+      <div class="wp-submit-title">📣 Run a watch party?</div>
+      <div class="wp-submit-sub">Get your venue in front of fans searching near you.</div>
+      <a id="wpSubmitBtn" href="#">Add your watch party →</a>
+    </div>
   </section>
 
   <div id="emailCard" style="display:none;margin-top:40px;background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--gold);border-radius:var(--radius);padding:22px 24px;position:relative">
@@ -407,25 +490,34 @@ function renderChips(){
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
     const t=c.dataset.t;
     follows.has(t)?follows.delete(t):follows.add(t);
-    saveFollows(); renderChips(); renderTonight(); renderDayCards();
+    saveFollows(); renderChips(); renderTonight(); renderDayCards(); renderParties();
   });
 }
-document.getElementById("clearFollow").onclick=()=>{follows.clear();saveFollows();renderChips();renderTonight();renderDayCards();};
+document.getElementById("clearFollow").onclick=()=>{follows.clear();saveFollows();renderChips();renderTonight();renderDayCards();renderParties();};
 document.getElementById("moreChips").onclick=function(){
   const c=document.getElementById("chips"); c.classList.toggle("open");
   this.textContent = c.classList.contains("open")?"collapse ▴":"show all 48 teams ▾";
 };
 
 // ---------- tabs ----------
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+function activateTab(sec){
+  const tab=document.querySelector(`.tab[data-sec="${sec}"]`), sect=document.getElementById(sec);
+  if(!tab||!sect) return;
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
   document.querySelectorAll("section").forEach(x=>x.classList.remove("on"));
-  t.classList.add("on");
-  document.getElementById(t.dataset.sec).classList.add("on");
-});
+  tab.classList.add("on"); sect.classList.add("on");
+  try{ localStorage.setItem("mn-tab", sec); }catch(e){}
+  if(history.replaceState) history.replaceState(null,"",`#${sec}`);
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>activateTab(t.dataset.sec));
+// open to the tab from the URL hash (shared links) or the last-visited tab
+(function(){
+  const want=((location.hash||"").replace("#","")) || (()=>{try{return localStorage.getItem("mn-tab")||"";}catch(e){return "";}})();
+  if(want && document.querySelector(`.tab[data-sec="${want}"]`)) activateTab(want);
+})();
 
 // email capture card (activates when TALLY_URL is set)
-const TALLY_URL = "";
+const TALLY_URL = "https://tally.so/r/2ERrQg";
 if (TALLY_URL) {
   let dismissed = false;
   try { dismissed = localStorage.getItem("mn-email-dismissed") === "1"; } catch(e){}
@@ -541,16 +633,192 @@ async function fetchLive(){
       live.length>0
     );
     renderLive(data);
+    // share live status with the Watch Parties tab (🔴 badge on parties for live matches)
+    lastLiveByPair = {};
+    data.matches.forEach(m=>{ if(isLiveStatus(m.status)) lastLiveByPair[pairKey(m.home,m.away)] = liveLabel(m); });
+    if(document.getElementById("parties").classList.contains("on")) renderParties();
   }catch(e){
     setLiveStatus("Live scores unavailable — showing today's fixtures", false);
     renderLive({matches:[]}, `<div class="live-note">Couldn't reach the live-scores service. Showing today's scheduled fixtures.</div>`);
   }
 }
 
+// ---------- watch parties ----------
+const VIBES = {
+  rowdy:       {label:"Rowdy",            grad:"linear-gradient(135deg,#ff5d73,#b3324a)"},
+  party:       {label:"Party",            grad:"linear-gradient(135deg,#ff8a3d,#ff5d73)"},
+  family:      {label:"Family-friendly",  grad:"linear-gradient(135deg,#5aa9ff,#2f6fd0)"},
+  chill:       {label:"Chill",            grad:"linear-gradient(135deg,#39ff8e,#1f9e63)"},
+  upscale:     {label:"Upscale",          grad:"linear-gradient(135deg,#ffd166,#c79a2e)"},
+  neighborhood:{label:"Neighborhood bar", grad:"linear-gradient(135deg,#8da2c8,#4a5b7e)"}
+};
+// Researched June 2026 from official FIFA pages + cross-referenced "best soccer bar" guides.
+// tier:"official" = announced FIFA Fan Festival · tier:"verified" = established, highly-rated venue
+// cited across multiple guides. matchN links to DATA.matches[].n (kickoff time + live status).
+const VENUES = [
+  {id:"ff-nyc-rock",tier:"official",name:"FIFA Fan Village — Rockefeller Center",city:"New York",neighborhood:"Midtown Manhattan",address:"Rockefeller Center, New York, NY",lat:40.7587,lng:-73.9787,indoor:false,vibe:"family",crowd:"Huge · free",fan:null,special:"Official Fan Festival · free (Jul 4–19)",matchN:56,source:"https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/fifa-fan-festival"},
+  {id:"ff-nyc-queens",tier:"official",name:"FIFA Fan Zone Queens — BJK Tennis Center",city:"New York",neighborhood:"Flushing, Queens",address:"USTA Billie Jean King National Tennis Center, Queens, NY",lat:40.7501,lng:-73.8451,indoor:false,vibe:"family",crowd:"Huge · free",fan:null,special:"Official Fan Festival · free (Jun 17–28)",matchN:17,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-bos",tier:"official",name:"FIFA Fan Festival — City Hall Plaza",city:"Boston",neighborhood:"Downtown",address:"1 City Hall Square, Boston, MA",lat:42.3603,lng:-71.0580,indoor:false,vibe:"family",crowd:"Huge · free",fan:null,special:"Official Fan Festival · free entry",matchN:46,source:"https://bostonfwc26.com/fifa-fan-festival/"},
+  {id:"ff-phl",tier:"official",name:"FIFA Fan Festival — Lemon Hill",city:"Philadelphia",neighborhood:"East Fairmount Park",address:"Lemon Hill, Fairmount Park, Philadelphia, PA",lat:39.9690,lng:-75.1960,indoor:false,vibe:"family",crowd:"Huge · free",fan:null,special:"Free · open all 39 days",matchN:42,source:"https://www.visitphilly.com/things-to-do/events/fifa-fan-festival/"},
+  {id:"ff-atl",tier:"official",name:"FIFA Fan Festival — Centennial Olympic Park",city:"Atlanta",neighborhood:"Downtown",address:"Centennial Olympic Park, Atlanta, GA",lat:33.7603,lng:-84.3933,indoor:false,vibe:"family",crowd:"~35,000 · free",fan:null,special:"Official Fan Festival · free entry",matchN:37,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-dal",tier:"official",name:"FIFA Fan Festival — Fair Park",city:"Dallas",neighborhood:"Fair Park",address:"Fair Park, Dallas, TX",lat:32.7790,lng:-96.7600,indoor:false,vibe:"family",crowd:"Free entry",fan:null,special:"Official Fan Festival · free entry",matchN:41,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-hou",tier:"official",name:"FIFA Fan Festival — EaDo",city:"Houston",neighborhood:"EaDo · 2301 Dallas St",address:"2301 Dallas St, Houston, TX",lat:29.7506,lng:-95.3476,indoor:false,vibe:"family",crowd:"Free · cap ~7,500",fan:null,special:"Official Fan Festival · free entry",matchN:21,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-kc",tier:"official",name:"FIFA Fan Festival — WWI Museum & Memorial",city:"Kansas City",neighborhood:"WWI Museum south lawn",address:"2 Memorial Dr, Kansas City, MO",lat:39.0617,lng:-94.5858,indoor:false,vibe:"family",crowd:"Free GA · cap 25,000",fan:null,special:"Official Fan Festival · free entry",matchN:19,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-sea",tier:"official",name:"FIFA Fan Festival — Seattle Center",city:"Seattle",neighborhood:"Lower Queen Anne",address:"Seattle Center, Seattle, WA",lat:47.6219,lng:-122.3517,indoor:false,vibe:"family",crowd:"Huge · free",fan:null,special:"Official Fan Festival · free entry",matchN:29,source:"https://bolavip.com/en/world-cup/fifa-fan-festivals-world-cup-locations-artists-dates"},
+  {id:"ff-mia",tier:"official",name:"FIFA Fan Festival — Bayfront Park",city:"Miami",neighborhood:"Downtown",address:"301 Biscayne Blvd, Miami, FL",lat:25.7753,lng:-80.1860,indoor:false,vibe:"family",crowd:"~30,000 · free",fan:null,special:"Official Fan Festival · free · Kids Zone",matchN:39,source:"https://miamifwc26.com/fan-festival/"},
+  {id:"ff-la",tier:"official",name:"FIFA Fan Festival — LA Memorial Coliseum",city:"Los Angeles",neighborhood:"Exposition Park",address:"3911 S Figueroa St, Los Angeles, CA",lat:34.0141,lng:-118.2879,indoor:false,vibe:"family",crowd:"$10 GA",fan:null,special:"Official Fan Festival · $10 general admission",matchN:38,source:"https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/fifa-fan-festival/los-angeles"},
+  {id:"smithfield",tier:"verified",name:"Smithfield Hall",city:"New York",neighborhood:"Chelsea, Manhattan",address:"138 W 25th St, New York, NY",lat:40.7445,lng:-73.9925,indoor:true,vibe:"rowdy",crowd:"26 screens",fan:null,special:"26 big screens · takes reservations",matchN:17,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"legends",tier:"verified",name:"Legends — The Football Factory",city:"New York",neighborhood:"Midtown, Manhattan",address:"6 W 33rd St, New York, NY",lat:40.7480,lng:-73.9870,indoor:true,vibe:"rowdy",crowd:"International",fan:null,special:"100+ matches/wk · opens 7am",matchN:17,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"redlion",tier:"verified",name:"The Red Lion",city:"New York",neighborhood:"Greenwich Village, Manhattan",address:"151 Bleecker St, New York, NY",lat:40.7286,lng:-74.0009,indoor:true,vibe:"neighborhood",crowd:"10+ HD screens",fan:null,special:"40+ yrs · opens 11am match days",matchN:67,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"beijaflor",tier:"verified",name:"Beija Flor",city:"New York",neighborhood:"Long Island City, Queens",address:"Long Island City, Queens, NY",lat:40.7447,lng:-73.9485,indoor:true,vibe:"party",crowd:"Giant screens",fan:"Brazil",special:"NYC hub for Team Brazil",matchN:31,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"oldmates",tier:"verified",name:"Old Mates Pub",city:"New York",neighborhood:"Financial District, Manhattan",address:"Financial District, New York, NY",lat:40.7060,lng:-74.0100,indoor:true,vibe:"party",crowd:"60-ft bar",fan:"Australia",special:"Home of the Socceroos in NYC",matchN:29,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"bohemian",tier:"verified",name:"Bohemian Hall & Beer Garden",city:"New York",neighborhood:"Astoria, Queens",address:"29-19 24th Ave, Astoria, NY",lat:40.7701,lng:-73.9180,indoor:false,vibe:"family",crowd:"Outdoor garden",fan:null,special:"Historic beer garden (since 1910)",matchN:17,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"berrypark",tier:"verified",name:"Berry Park",city:"New York",neighborhood:"Williamsburg, Brooklyn",address:"4 Berry St, Brooklyn, NY",lat:40.7178,lng:-73.9573,indoor:false,vibe:"party",crowd:"Rooftop terrace",fan:"Germany",special:"$5 happy-hour drafts · skyline views",matchN:56,source:"https://www.tastingtable.com/2192375/best-nyc-bars-watch-world-cup/"},
+  {id:"greyhound-la",tier:"verified",name:"The Greyhound Bar & Grill",city:"Los Angeles",neighborhood:"Highland Park",address:"Highland Park, Los Angeles, CA",lat:34.1110,lng:-118.1920,indoor:true,vibe:"rowdy",crowd:"Supporters' club",fan:null,special:"LA supporters'-club home",matchN:26,source:"https://matadornetwork.com/read/la-soccer-bars/"},
+  {id:"catfiddle-la",tier:"verified",name:"The Cat & Fiddle",city:"Los Angeles",neighborhood:"Hollywood",address:"742 N Highland Ave, Los Angeles, CA",lat:34.0840,lng:-118.3380,indoor:false,vibe:"neighborhood",crowd:"Outdoor patio",fan:"England",special:"British football pub · opens early",matchN:22,source:"https://matadornetwork.com/read/la-soccer-bars/"},
+  {id:"otoole-chi",tier:"verified",name:"Timothy O'Toole's Pub",city:"Chicago",neighborhood:"Streeterville",address:"622 N Fairbanks Ct, Chicago, IL",lat:41.8925,lng:-87.6205,indoor:true,vibe:"rowdy",crowd:"48 drafts",fan:null,special:"Big-screen sports pub",matchN:19,source:"https://www.cbsnews.com/chicago/news/best-sports-bars-to-watch-world-cup-soccer-in-chicago/"},
+  {id:"amsocial-mia",tier:"verified",name:"American Social",city:"Miami",neighborhood:"Brickell",address:"690 SW 1st Ct, Miami, FL",lat:25.7650,lng:-80.1936,indoor:false,vibe:"party",crowd:"Outdoor patio",fan:null,special:"Brickell waterfront patio",matchN:52,source:"https://www.nbcsports.com/soccer/news/best-places-to-watch-the-2026-world-cup-in-the-usa-bars-watch-parties-top-locations"},
+  {id:"soccerbg-hou",tier:"verified",name:"Soccer Beer Garden HTX",city:"Houston",neighborhood:"EaDo / Downtown",address:"Houston, TX",lat:29.7490,lng:-95.3500,indoor:false,vibe:"party",crowd:"Outdoor garden",fan:null,special:"Soccer-first outdoor beer garden",matchN:21,source:"https://www.nbcsports.com/soccer/news/best-places-to-watch-the-2026-world-cup-in-the-usa-bars-watch-parties-top-locations"}
+];
+
+let wpView = "grid";    // "grid" | "feed"
+let wpIndoor = "all";   // "all" | "indoor" | "outdoor"
+let wpUserPos = null;   // {lat,lng} once geolocation granted
+let lastLiveByPair = {};// fed by fetchLive() → 🔴 badge on live parties
+let placeData = {}, placesFetched = false; // live Google ratings (only if GOOGLE_PLACES_API_KEY is set)
+function fetchPlaces(){
+  if(placesFetched) return; placesFetched = true;
+  const queries = VENUES.filter(v=>v.tier==="verified").map(v=>({id:v.id, q:v.name+" "+v.city}));
+  fetch("/api/places", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({queries})})
+    .then(r=> r.ok ? r.json() : null)
+    .then(d=>{ if(d && d.places && Object.keys(d.places).length){ placeData = d.places; renderParties(); } })
+    .catch(()=>{}); // no ratings available → cards just render without them
+}
+
+function partyMatch(v){ return DATA.matches.find(m=>m.n===v.matchN); }
+function haversineMi(pos, v){
+  const R=3958.8, toR=x=>x*Math.PI/180;
+  const dLat=toR(v.lat-pos.lat), dLng=toR(v.lng-pos.lng);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toR(pos.lat))*Math.cos(toR(v.lat))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function partyCard(v){
+  const m = partyMatch(v);
+  const vibe = VIBES[v.vibe] || VIBES.neighborhood;
+  const fol = m && (follows.has(m.t1)||follows.has(m.t2));
+  const liveLbl = m ? lastLiveByPair[pairKey(m.t1,m.t2)] : null;
+  const dist = (wpUserPos && v.lat!=null) ? `<span class="pdist">${haversineMi(wpUserPos,v).toFixed(1)} mi</span>` : "";
+  const pd = placeData[v.id];
+  const ratingHTML = (pd && pd.rating)
+    ? `<span class="prating">⭐ ${pd.rating}${pd.total?` (${pd.total>=1000?(pd.total/1000).toFixed(1)+"k":pd.total})`:""}${pd.openNow===true?` · <span class="popen">Open</span>`:pd.openNow===false?` · <span class="pclosed">Closed</span>`:""}</span>`
+    : "";
+  const matchLine = m
+    ? `<div class="pmatch">${liveLbl?`<span class="livebadge"><span class="ldot"></span>${liveLbl}</span> `:""}<span class="flag">${FLAGS[m.t1]||"⚽"}</span>${m.t1} <span style="color:var(--dim);font-weight:400">v</span> <span class="flag">${FLAGS[m.t2]||"⚽"}</span>${m.t2}</div>
+       <div class="pwhen"><b>${localKick(m)}</b> · ${fmtDay(localDateKey(m))} · ${m.stage}</div>`
+    : `<div class="pwhen">Showing all matches</div>`;
+  const tags = [
+    `<span class="ptag ${v.indoor?"indoor":"outdoor"}">${v.indoor?"🏠 Indoor":"🌤 Outdoor"}</span>`,
+    `<span class="ptag">${vibe.label}</span>`,
+    v.crowd?`<span class="ptag">👥 ${v.crowd}</span>`:"",
+    v.fan?`<span class="ptag fan">🌎 ${v.fan} fans</span>`:""
+  ].join("");
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name+" "+(v.address||v.city))}`;
+  return `<div class="party${fol?" followed":""}">
+    <div class="pphoto" style="background:${vibe.grad}"><span class="pcity">📍 ${v.neighborhood?v.neighborhood+", ":""}${v.city}</span>${dist}</div>
+    <div class="pbody">
+      <div class="pname" style="display:flex;align-items:baseline;gap:8px">${v.name}${ratingHTML}</div>
+      ${matchLine}
+      <div class="ptags">${tags}</div>
+      ${v.special?`<div class="pspecial">🎟 ${v.special}</div>`:""}
+      <div class="pactions">
+        <a class="pbtn" href="${mapsUrl}" target="_blank" rel="noopener">🗺 Directions</a>
+        <button class="pbtn" data-cal="${v.id}">📅 Add</button>
+        <button class="pbtn" data-share="${v.id}">📣 Share</button>
+      </div>
+    </div>
+  </div>`;
+}
+function partyList(){
+  let list = VENUES.slice();
+  if(wpIndoor!=="all") list = list.filter(v=> wpIndoor==="indoor" ? v.indoor : !v.indoor);
+  if(follows.size) list = list.filter(v=>{ const m=partyMatch(v); return m && (follows.has(m.t1)||follows.has(m.t2)); });
+  return list;
+}
+function renderParties(){
+  const wrap = document.getElementById("partiesWrap");
+  if(!VENUES.length){ wrap.innerHTML = `<p class="empty">Verified watch parties are being added — check back soon. 👀</p>`; return; }
+  const list = partyList();
+  if(!list.length){ wrap.innerHTML = `<p class="empty">No parties match your filters${follows.size?" for your followed teams":""}. Try clearing filters.</p>`; return; }
+  const open = wpView==="feed" ? '<div class="wp-feed">' : '<div class="cards">';
+  if(wpUserPos){
+    list.sort((a,b)=>haversineMi(wpUserPos,a)-haversineMi(wpUserPos,b));
+    wrap.innerHTML = open + list.map(partyCard).join("") + "</div>";
+  } else {
+    const byCity = {};
+    list.forEach(v=>{ (byCity[v.city]=byCity[v.city]||[]).push(v); });
+    wrap.innerHTML = Object.keys(byCity).sort().map(c =>
+      `<div class="block-title dim">📍 ${c}</div>` + open + byCity[c].map(partyCard).join("") + "</div>"
+    ).join("");
+  }
+  document.querySelectorAll("#partiesWrap [data-cal]").forEach(b=>b.onclick=()=>downloadIcs(b.dataset.cal));
+  document.querySelectorAll("#partiesWrap [data-share]").forEach(b=>b.onclick=()=>shareParty(b.dataset.share));
+}
+function pad2(n){ return String(n).padStart(2,"0"); }
+function icsStamp(d){ return `${d.getUTCFullYear()}${pad2(d.getUTCMonth()+1)}${pad2(d.getUTCDate())}T${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}00Z`; }
+function downloadIcs(id){
+  const v=VENUES.find(x=>x.id===id); if(!v) return;
+  const m=partyMatch(v); const start=m?matchUTC(m):null; if(!start) return;
+  const end=new Date(start.getTime()+2*3600*1000);
+  const title=`${m.t1} v ${m.t2} watch party @ ${v.name}`;
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Match Night//WC2026//EN","BEGIN:VEVENT",
+    `DTSTART:${icsStamp(start)}`,`DTEND:${icsStamp(end)}`,`SUMMARY:${title}`,
+    `LOCATION:${(v.address||v.name+", "+v.city).replace(/,/g,"\\,")}`,
+    `DESCRIPTION:World Cup watch party`,"END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download="watch-party.ics"; a.click();
+}
+async function shareParty(id){
+  const v=VENUES.find(x=>x.id===id); if(!v) return;
+  const m=partyMatch(v);
+  const text=`${m?`${m.t1} v ${m.t2} `:""}watch party @ ${v.name} (${v.city}) — found on Match Night`;
+  const btn=document.querySelector(`#partiesWrap [data-share="${id}"]`);
+  if(navigator.share){ try{ await navigator.share({title:"Match Night watch party", text, url:location.href}); }catch(e){} }
+  else { try{ await navigator.clipboard.writeText(text+" "+location.href); const o=btn.textContent; btn.textContent="✓ Copied"; setTimeout(()=>btn.textContent=o,1500); }catch(e){} }
+}
+function requestGeo(){
+  const btn=document.getElementById("wpGeo");
+  if(wpUserPos){ wpUserPos=null; btn.classList.remove("on"); btn.textContent="📍 Sort by distance"; renderParties(); return; }
+  if(!navigator.geolocation){ btn.textContent="📍 Location unavailable"; return; }
+  btn.textContent="📍 Locating…";
+  navigator.geolocation.getCurrentPosition(
+    p=>{ wpUserPos={lat:p.coords.latitude,lng:p.coords.longitude}; btn.classList.add("on"); btn.textContent="📍 Nearest first"; renderParties(); },
+    ()=>{ btn.textContent="📍 Blocked — grouped by city"; renderParties(); }
+  );
+}
+document.getElementById("wpGrid").onclick=()=>{ wpView="grid"; document.getElementById("wpGrid").classList.add("on"); document.getElementById("wpFeed").classList.remove("on"); renderParties(); };
+document.getElementById("wpFeed").onclick=()=>{ wpView="feed"; document.getElementById("wpFeed").classList.add("on"); document.getElementById("wpGrid").classList.remove("on"); renderParties(); };
+document.querySelectorAll(".wp-fchip[data-indoor]").forEach(c=>c.onclick=()=>{
+  wpIndoor=c.dataset.indoor;
+  document.querySelectorAll(".wp-fchip[data-indoor]").forEach(x=>x.classList.toggle("on", x===c));
+  renderParties();
+});
+document.getElementById("wpGeo").onclick=requestGeo;
+
+// "Add your watch party" CTA — paste a Tally/Google Form URL to collect submissions; falls back to email.
+const WATCH_PARTY_FORM_URL = "https://tally.so/r/yP7pa0";
+(function(){
+  const b=document.getElementById("wpSubmitBtn"); if(!b) return;
+  if(WATCH_PARTY_FORM_URL){ b.href=WATCH_PARTY_FORM_URL; b.target="_blank"; b.rel="noopener"; }
+  else { b.href="mailto:dylonhernandezm@gmail.com?subject="+encodeURIComponent("Add my watch party to Match Night")
+    +"&body="+encodeURIComponent("Venue name:\nCity / neighborhood:\nIndoor or outdoor:\nWhich matches you're showing:\nAnything else:"); }
+})();
+
 // init
-renderChips(); renderTonight(); renderDayStrip(); renderDayCards(); renderGroups(); renderBracket();
+renderChips(); renderTonight(); renderDayStrip(); renderDayCards(); renderGroups(); renderBracket(); renderParties();
 fetchLive();
 document.querySelector('.tab[data-sec="live"]').addEventListener("click", fetchLive);
+document.querySelector('.tab[data-sec="parties"]').addEventListener("click", ()=>{ renderParties(); fetchPlaces(); });
+if(document.getElementById("parties").classList.contains("on")) fetchPlaces();
 setInterval(()=>{ if(!document.hidden) fetchLive(); }, 30000);
 </script>
 <script>
@@ -565,5 +833,7 @@ setInterval(()=>{ if(!document.hidden) fetchLive(); }, 30000);
   if(c) initAurora(c,{colorStops:['#16264a','#39ff8e','#5aa9ff'],amplitude:1.0,blend:0.5,speed:0.7});
 })();
 </script>
+<!-- Vercel Web Analytics (activates once enabled in the Vercel dashboard; harmless otherwise) -->
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
