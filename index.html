@@ -119,6 +119,20 @@
   .ft{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;letter-spacing:.1em;color:#06210f;background:var(--neon);border-radius:6px;padding:2px 7px}
   .empty{color:var(--dim);text-align:center;padding:40px 0;font-size:15px}
 
+  /* live */
+  .match.live{border-color:var(--hot);box-shadow:0 0 18px rgba(255,93,115,.18)}
+  .livebadge{position:absolute;top:14px;right:14px;display:inline-flex;align-items:center;gap:6px;
+    font-size:10px;font-weight:800;letter-spacing:.1em;color:#fff;background:var(--hot);border-radius:6px;padding:2px 8px}
+  .livebadge .ldot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+  .trow .sc.livesc{color:var(--hot)}
+  .live-status{display:flex;align-items:center;gap:8px;margin:8px 0 16px;font-size:12.5px;color:var(--dim)}
+  .live-status .ldot{width:8px;height:8px;border-radius:50%;background:var(--hot);box-shadow:0 0 8px var(--hot);animation:pulse 1.2s infinite}
+  .live-note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+    margin:10px 0 18px;font-size:12.5px;color:var(--dim);line-height:1.6}
+  .live-note code{color:var(--gold);font-size:12px}
+  .block-title{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--neon);margin:22px 0 12px}
+  .block-title.dim{color:var(--dim)}
+
   /* groups */
   .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
   .gcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
@@ -155,6 +169,7 @@
 
 <nav><div class="tabs">
   <button class="tab on" data-sec="tonight">🔥 Tonight</button>
+  <button class="tab" data-sec="live">🔴 Live</button>
   <button class="tab" data-sec="schedule">📅 Schedule</button>
   <button class="tab" data-sec="groups">🏆 Groups</button>
   <button class="tab" data-sec="bracket">🛣️ Bracket</button>
@@ -172,6 +187,13 @@
 
   <section id="tonight" class="on">
     <div id="tonightWrap"></div>
+  </section>
+
+  <section id="live">
+    <div class="sec-title">Live scores</div>
+    <div class="sec-sub">In-progress matches update automatically. Today's fixtures shown below.</div>
+    <div class="live-status" id="liveStatus"><span class="ldot"></span><span id="liveStatusText">Loading live scores…</span></div>
+    <div id="liveWrap"></div>
   </section>
 
   <section id="schedule">
@@ -415,8 +437,119 @@ if (TALLY_URL) {
   }
 }
 
+// ---------- live scores (via /api/live-scores serverless proxy) ----------
+// football-data.org uses some team names that differ from this app's labels — map them for flags/matching.
+const TEAM_ALIASES = {
+  "usa":"United States","united states of america":"United States",
+  "korea republic":"South Korea","türkiye":"Turkey","turkiye":"Turkey",
+  "czechia":"Czech Republic","côte d'ivoire":"Ivory Coast","cote d'ivoire":"Ivory Coast",
+  "curacao":"Curaçao","cabo verde":"Cape Verde","congo dr":"DR Congo","dr congo":"DR Congo"
+};
+function normTeam(n){
+  if(!n) return "";
+  const k = n.trim().toLowerCase();
+  return TEAM_ALIASES[k] || n.trim();
+}
+function pairKey(a,b){ return [normTeam(a),normTeam(b)].sort().join(" | "); }
+function teamFlag(n){ return FLAGS[normTeam(n)] || "⚽"; }
+function isLiveStatus(s){ return s==="IN_PLAY" || s==="PAUSED"; }
+function liveLabel(m){
+  if(m.status==="IN_PLAY") return m.minute!=null ? `${m.minute}${m.injuryTime?"+"+m.injuryTime:""}'` : "LIVE";
+  if(m.status==="PAUSED") return "HT";
+  if(m.status==="FINISHED") return "FT";
+  return "";
+}
+function prettyStage(m){ return (m.group || m.stage || "").replace(/_/g," "); }
+function apiScoreFor(api, teamName){
+  if(normTeam(api.home)===normTeam(teamName)) return api.homeScore;
+  if(normTeam(api.away)===normTeam(teamName)) return api.awayScore;
+  return null;
+}
+function liveCard(o){
+  const scH = o.homeScore!=null ? `<span class="sc${o.isLive?" livesc":""}">${o.homeScore}</span>` : "";
+  const scA = o.awayScore!=null ? `<span class="sc${o.isLive?" livesc":""}">${o.awayScore}</span>` : "";
+  const badge = o.isLive
+    ? `<span class="livebadge"><span class="ldot"></span>${o.statusLabel}</span>`
+    : (o.statusLabel==="FT" ? '<span class="ft">FT</span>' : "");
+  const mid = o.isLive ? o.statusLabel : (o.statusLabel==="FT" ? "FULL TIME" : "VS");
+  return `<div class="match${o.isLive?" live":""}">
+    ${badge}
+    <div class="stage"><span>${o.stage||""}</span></div>
+    <div class="teams">
+      <div class="trow"><span class="flag">${teamFlag(o.home)}</span>${o.home} ${scH}</div>
+      <div class="vs">${mid}</div>
+      <div class="trow"><span class="flag">${teamFlag(o.away)}</span>${o.away} ${scA}</div>
+    </div>
+  </div>`;
+}
+function setLiveStatus(text, hot){
+  document.getElementById("liveStatusText").textContent = text;
+  const dot = document.querySelector("#liveStatus .ldot");
+  dot.style.background = hot ? "var(--hot)" : "var(--dim)";
+  dot.style.boxShadow = hot ? "0 0 8px var(--hot)" : "none";
+}
+function renderLive(apiData, noteHTML){
+  const matches = (apiData && apiData.matches) || [];
+  const apiByPair = {};
+  matches.forEach(m=>{ apiByPair[pairKey(m.home,m.away)] = m; });
+  const live = matches.filter(m=>isLiveStatus(m.status));
+
+  let html = noteHTML || "";
+  if(live.length){
+    html += `<div class="block-title">🔴 Live now</div><div class="cards">` +
+      live.map(m=>liveCard({home:m.home,away:m.away,homeScore:m.homeScore,awayScore:m.awayScore,
+        stage:prettyStage(m),isLive:true,statusLabel:liveLabel(m)})).join("") + `</div>`;
+  }
+
+  const tk = todayKey();
+  const todays = DATA.matches.filter(m=>localDateKey(m)===tk).sort((a,b)=>(matchUTC(a)||0)-(matchUTC(b)||0));
+  html += `<div class="block-title dim">📅 Today's fixtures</div>`;
+  if(!todays.length){
+    html += `<p class="empty">No World Cup matches scheduled today — check the Schedule tab.</p>`;
+  } else {
+    html += `<div class="cards">` + todays.map(m=>{
+      const api = apiByPair[pairKey(m.t1,m.t2)];
+      if(api && (isLiveStatus(api.status) || (api.status==="FINISHED" && api.homeScore!=null))){
+        return liveCard({home:m.t1,away:m.t2,
+          homeScore:apiScoreFor(api,m.t1),awayScore:apiScoreFor(api,m.t2),
+          stage:m.stage,isLive:isLiveStatus(api.status),statusLabel:liveLabel(api)});
+      }
+      return card(m);
+    }).join("") + `</div>`;
+  }
+  document.getElementById("liveWrap").innerHTML = html;
+}
+async function fetchLive(){
+  try{
+    const r = await fetch("/api/live-scores", {cache:"no-store"});
+    const data = await r.json();
+    if(data.error){
+      const note = data.error==="no_key"
+        ? `<div class="live-note">⚙️ Live scores aren't wired up yet. Add a free <code>FOOTBALL_DATA_API_KEY</code> (football-data.org) to your Vercel project settings and redeploy. Showing today's scheduled fixtures below.</div>`
+        : `<div class="live-note">Couldn't reach the live-scores service${data.message?": "+data.message:""}. Showing today's scheduled fixtures.</div>`;
+      setLiveStatus("Live scores unavailable — showing today's fixtures", false);
+      renderLive({matches:[]}, note);
+      return;
+    }
+    const live = data.matches.filter(m=>isLiveStatus(m.status));
+    const t = new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+    setLiveStatus(
+      (live.length ? `${live.length} match${live.length!==1?"es":""} live now` : "No matches live right now")
+        + ` · updated ${t} · auto-refreshing`,
+      live.length>0
+    );
+    renderLive(data);
+  }catch(e){
+    setLiveStatus("Live scores unavailable — showing today's fixtures", false);
+    renderLive({matches:[]}, `<div class="live-note">Couldn't reach the live-scores service. Showing today's scheduled fixtures.</div>`);
+  }
+}
+
 // init
 renderChips(); renderTonight(); renderDayStrip(); renderDayCards(); renderGroups(); renderBracket();
+fetchLive();
+document.querySelector('.tab[data-sec="live"]').addEventListener("click", fetchLive);
+setInterval(()=>{ if(!document.hidden) fetchLive(); }, 30000);
 </script>
 </body>
 </html>
